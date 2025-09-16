@@ -2,20 +2,33 @@
 import './App.css';
 
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+
 import Activities from './components/Activities';
 import Leaderboard from './components/Leaderboard';
 import Teams from './components/Teams';
 import Users from './components/Users';
 import Workouts from './components/Workouts';
-import logo from '../public/octofitapp-small.png';
+import Login from './components/Login';
+import React, { useState } from 'react';
+
 
 function App() {
+  const [user, setUser] = useState(null);
+
+  const handleLogout = () => setUser(null);
+
+  if (!user) {
+    return <Login onLogin={setUser} />;
+  }
+
+  const isRestricted = user === 'restricted';
+
   return (
     <Router>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container-fluid">
           <Link className="navbar-brand d-flex align-items-center" to="/">
-            <img src={logo} alt="OctoFit Logo" className="octofit-logo" />
+            <img src={`${process.env.PUBLIC_URL}/octofitapp-small.png`} alt="OctoFit Logo" className="octofit-logo" />
             OctoFit Tracker
           </Link>
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,9 +39,11 @@ function App() {
               <li className="nav-item"><Link className="nav-link" to="/activities">Activities</Link></li>
               <li className="nav-item"><Link className="nav-link" to="/leaderboard">Leaderboard</Link></li>
               <li className="nav-item"><Link className="nav-link" to="/teams">Teams</Link></li>
-              <li className="nav-item"><Link className="nav-link" to="/users">Users</Link></li>
+              {!isRestricted && <li className="nav-item"><Link className="nav-link" to="/users">Users</Link></li>}
               <li className="nav-item"><Link className="nav-link" to="/workouts">Workouts</Link></li>
             </ul>
+            <span className="navbar-text ms-auto text-light me-3">Welcome, {user}!</span>
+            <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>Logout</button>
           </div>
         </div>
       </nav>
@@ -37,7 +52,7 @@ function App() {
           <Route path="/activities" element={<Activities />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/teams" element={<Teams />} />
-          <Route path="/users" element={<Users />} />
+          {!isRestricted && <Route path="/users" element={<Users />} />}
           <Route path="/workouts" element={<Workouts />} />
           <Route path="/" element={<h2>Welcome to OctoFit Tracker!</h2>} />
         </Routes>
